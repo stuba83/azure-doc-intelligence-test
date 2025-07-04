@@ -201,8 +201,9 @@ def main():
     
     # Test documents
     test_documents = [
-        "test_documents/Azure AI Agents.pdf",
-        "test_documents/Azure ARC SQL.pdf"
+        "test_documents/sample.pdf",
+        "test_documents/document_with_tables.pdf",
+        "test_documents/complex_document.pdf"
     ]
     
     print("🚀 STARTING AZURE DOCUMENT INTELLIGENCE TESTS")
