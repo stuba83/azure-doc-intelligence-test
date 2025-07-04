@@ -5,7 +5,7 @@ from azure.ai.documentintelligence import DocumentIntelligenceClient
 from azure.core.credentials import AzureKeyCredential
 from dotenv import load_dotenv
 
-# Cargar variables de entorno
+# Load environment variables
 load_dotenv()
 
 class DocumentIntelligenceTest:
@@ -14,7 +14,7 @@ class DocumentIntelligenceTest:
         self.key = os.getenv("DOCUMENT_INTELLIGENCE_KEY")
         
         if not self.endpoint or not self.key:
-            raise ValueError("Faltan variables de entorno. Revisa el archivo .env")
+            raise ValueError("Missing environment variables. Check the .env file")
         
         self.client = DocumentIntelligenceClient(
             endpoint=self.endpoint, 
@@ -23,168 +23,168 @@ class DocumentIntelligenceTest:
     
     def analyze_document(self, document_path, output_format="default"):
         """
-        Analiza un documento con diferentes formatos de salida
+        Analyzes a document with different output formats
         
         Args:
-            document_path: Ruta del documento
+            document_path: Document path
             output_format: "default", "markdown", "text", "html"
         """
-        print(f"\n🔍 Analizando: {document_path}")
-        print(f"📋 Formato solicitado: {output_format}")
+        print(f"\n🔍 Analyzing: {document_path}")
+        print(f"📋 Requested format: {output_format}")
         
         try:
             with open(document_path, "rb") as f:
-                # Configurar parámetros según formato deseado
+                # Configure parameters according to desired format
                 analyze_params = {
                     "model_id": "prebuilt-layout",
                     "analyze_request": f,
                     "content_type": "application/octet-stream"
                 }
                 
-                # Agregar parámetros específicos según formato
+                # Add specific parameters according to format
                 if output_format == "markdown":
                     analyze_params["output_content_format"] = "markdown"
                 elif output_format == "text":
                     analyze_params["output_content_format"] = "text"
                 elif output_format == "html":
-                    # Algunas versiones del API soportan HTML
+                    # Some API versions support HTML
                     analyze_params["output_content_format"] = "html"
                 
-                print("⏳ Enviando solicitud a Azure...")
+                print("⏳ Sending request to Azure...")
                 try:
                     poller = self.client.begin_analyze_document(**analyze_params)
                 except Exception as param_error:
-                    print(f"⚠️ Error con parámetros específicos: {param_error}")
-                    print("🔄 Intentando con parámetros por defecto...")
-                    # Fallback a parámetros por defecto
+                    print(f"⚠️ Error with specific parameters: {param_error}")
+                    print("🔄 Trying with default parameters...")
+                    # Fallback to default parameters
                     poller = self.client.begin_analyze_document(
                         "prebuilt-layout",
                         analyze_request=f,
                         content_type="application/octet-stream"
                     )
             
-            print("⏳ Procesando documento...")
+            print("⏳ Processing document...")
             result = poller.result()
             
-            # Análisis del contenido
+            # Content analysis
             content = result.content
             format_detected = self._detect_format(content)
             
-            # Crear reporte
+            # Create report
             report = self._create_report(document_path, content, format_detected, output_format)
             
-            # Guardar resultados
+            # Save results
             self._save_results(document_path, content, report, output_format)
             
-            print(f"✅ Análisis completado:")
-            print(f"   Formato solicitado: {output_format}")
-            print(f"   Formato detectado: {format_detected}")
+            print(f"✅ Analysis completed:")
+            print(f"   Requested format: {output_format}")
+            print(f"   Detected format: {format_detected}")
             return result
             
         except Exception as e:
-            print(f"❌ Error procesando {document_path}: {e}")
+            print(f"❌ Error processing {document_path}: {e}")
             return None
     
     def _detect_format(self, content):
-        """Detecta si el contenido es HTML, Markdown o texto plano"""
+        """Detects if content is HTML, Markdown or plain text"""
         content_lower = content.lower()
         
-        # Detectar HTML
+        # Detect HTML
         html_indicators = ['<html>', '<div>', '<p>', '<table>', '<tr>', '<td>', '<span>', '<h1>', '<h2>']
         html_count = sum(1 for indicator in html_indicators if indicator in content_lower)
         
-        # Detectar Markdown
+        # Detect Markdown
         markdown_indicators = ['# ', '## ', '### ', '**', '*', '- ', '1. ', '|', '```']
         markdown_count = sum(1 for indicator in markdown_indicators if indicator in content)
         
-        # Detectar JSON
+        # Detect JSON
         json_indicators = ['{', '}', '":', '["', '"]']
         json_count = sum(1 for indicator in json_indicators if indicator in content)
         
         if html_count > 0:
-            return f"HTML (indicadores: {html_count})"
+            return f"HTML (indicators: {html_count})"
         elif markdown_count > 2:
-            return f"Markdown (indicadores: {markdown_count})"
+            return f"Markdown (indicators: {markdown_count})"
         elif json_count > 3:
-            return f"JSON (indicadores: {json_count})"
+            return f"JSON (indicators: {json_count})"
         else:
-            return "Texto plano"
+            return "Plain text"
     
     def _create_report(self, document_path, content, format_detected, requested_format):
-        """Crea un reporte detallado del análisis"""
+        """Creates a detailed analysis report"""
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         
         report = f"""
-=== REPORTE DE ANÁLISIS ===
-Archivo: {document_path}
-Fecha: {timestamp}
-Formato solicitado: {requested_format}
-Formato detectado: {format_detected}
-Longitud del contenido: {len(content)} caracteres
+=== ANALYSIS REPORT ===
+File: {document_path}
+Date: {timestamp}
+Requested format: {requested_format}
+Detected format: {format_detected}
+Content length: {len(content)} characters
 
-=== ANÁLISIS DE CONTENIDO ===
+=== CONTENT ANALYSIS ===
 """
         
-        # Análisis específico por formato
+        # Specific analysis by format
         if "HTML" in format_detected:
-            report += "✅ RESULTADO: Azure devolvió HTML\n"
-            report += f"   - Etiquetas HTML encontradas\n"
+            report += "✅ RESULT: Azure returned HTML\n"
+            report += f"   - HTML tags found\n"
         elif "Markdown" in format_detected:
-            report += "✅ RESULTADO: Azure devolvió Markdown\n"
-            report += f"   - Sintaxis Markdown encontrada\n"
+            report += "✅ RESULT: Azure returned Markdown\n"
+            report += f"   - Markdown syntax found\n"
         elif "JSON" in format_detected:
-            report += "✅ RESULTADO: Azure devolvió JSON\n"
-            report += f"   - Estructura JSON encontrada\n"
+            report += "✅ RESULT: Azure returned JSON\n"
+            report += f"   - JSON structure found\n"
         else:
-            report += "ℹ️ RESULTADO: Texto plano o formato no identificado\n"
+            report += "ℹ️ RESULT: Plain text or unidentified format\n"
         
         report += f"""
-=== MUESTRA DEL CONTENIDO ===
-PRIMERAS 500 CARACTERES:
+=== CONTENT SAMPLE ===
+FIRST 500 CHARACTERS:
 {content[:500]}...
 
-ÚLTIMAS 500 CARACTERES:
+LAST 500 CHARACTERS:
 ...{content[-500:]}
 
-=== VERIFICACIÓN MANUAL ===
-Revisa el archivo completo para confirmar el formato.
+=== MANUAL VERIFICATION ===
+Check the complete file to confirm the format.
 """
         return report
     
     def _save_results(self, document_path, content, report, output_format):
-        """Guarda los resultados en archivos"""
+        """Saves results to files"""
         os.makedirs("results", exist_ok=True)
         
         filename = os.path.basename(document_path).split('.')[0]
         
-        # Guardar contenido completo con sufijo del formato
+        # Save complete content with format suffix
         content_file = f"results/{filename}_{output_format}_content.md"
         with open(content_file, "w", encoding="utf-8") as f:
             f.write(content)
         
-        # Guardar reporte
+        # Save report
         report_file = f"results/{filename}_{output_format}_report.md"
         with open(report_file, "w", encoding="utf-8") as f:
             f.write(report)
         
-        print(f"💾 Archivos guardados:")
+        print(f"💾 Files saved:")
         print(f"   - {content_file}")
         print(f"   - {report_file}")
 
     def run_format_comparison(self, document_path):
-        """Ejecuta el mismo documento con diferentes formatos para comparar"""
-        print(f"\n🔬 COMPARACIÓN DE FORMATOS para: {document_path}")
+        """Runs the same document with different formats for comparison"""
+        print(f"\n🔬 FORMAT COMPARISON for: {document_path}")
         print("=" * 60)
         
         formats_to_test = ["default", "markdown", "text", "html"]
         results = {}
         
         for fmt in formats_to_test:
-            print(f"\n--- Probando formato: {fmt} ---")
+            print(f"\n--- Testing format: {fmt} ---")
             result = self.analyze_document(document_path, fmt)
             results[fmt] = result
             
-        print(f"\n📊 RESUMEN DE COMPARACIÓN:")
+        print(f"\n📊 COMPARISON SUMMARY:")
         print("=" * 60)
         for fmt, result in results.items():
             if result:
@@ -196,39 +196,39 @@ Revisa el archivo completo para confirmar el formato.
         return results
 
 def main():
-    """Función principal para ejecutar las pruebas"""
+    """Main function to run the tests"""
     tester = DocumentIntelligenceTest()
     
-    # Documentos de prueba
+    # Test documents
     test_documents = [
         "test_documents/Azure AI Agents.pdf",
         "test_documents/Azure ARC SQL.pdf"
     ]
     
-    print("🚀 INICIANDO PRUEBAS DE AZURE DOCUMENT INTELLIGENCE")
+    print("🚀 STARTING AZURE DOCUMENT INTELLIGENCE TESTS")
     print("=" * 60)
     
-    # Opción 1: Probar un documento con todos los formatos
+    # Option 1: Test one document with all formats
     available_docs = [doc for doc in test_documents if os.path.exists(doc)]
     
     if available_docs:
-        print("\n🎯 MODO: Comparación de formatos")
+        print("\n🎯 MODE: Format comparison")
         first_doc = available_docs[0]
         tester.run_format_comparison(first_doc)
     else:
-        print("⚠️ No se encontraron documentos de prueba en test_documents/")
-        print("   Agrega algunos archivos PDF para continuar.")
+        print("⚠️ No test documents found in test_documents/")
+        print("   Add some PDF files to continue.")
         return
     
-    # Opción 2: Probar todos los documentos con formato por defecto
-    print(f"\n🎯 MODO: Análisis con formato por defecto")
+    # Option 2: Test all documents with default format
+    print(f"\n🎯 MODE: Analysis with default format")
     print("=" * 60)
     
     for doc_path in available_docs:
         tester.analyze_document(doc_path, "default")
     
-    print(f"\n✅ PRUEBAS COMPLETADAS")
-    print("📁 Revisa la carpeta 'results/' para ver todos los archivos generados")
+    print(f"\n✅ TESTS COMPLETED")
+    print("📁 Check the 'results/' folder to see all generated files")
 
 if __name__ == "__main__":
     main()

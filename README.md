@@ -1,19 +1,19 @@
 # Azure Document Intelligence Test
 
-## Configuración inicial
+## Initial Setup
 
-1. **Editar .env con tus credenciales:**
+1. **Edit .env with your credentials:**
    ```
-   DOCUMENT_INTELLIGENCE_ENDPOINT=https://tu-recurso.cognitiveservices.azure.com/
-   DOCUMENT_INTELLIGENCE_KEY=tu-clave-aqui
+   DOCUMENT_INTELLIGENCE_ENDPOINT=https://your-resource.cognitiveservices.azure.com/
+   DOCUMENT_INTELLIGENCE_KEY=your-key-here
    ```
 
-2. **Añadir documentos de prueba en test_documents/:**
+2. **Add test documents in test_documents/:**
    - sample.pdf
    - document_with_tables.pdf
    - complex_document.pdf
 
-## Ejecutar pruebas
+## Run Tests
 
 ### Python
 ```bash
@@ -31,12 +31,12 @@ dotnet run --project csharp/
 ```
 
 ### REST API
-- Abrir rest_api/test_api.http en VS Code
-- Usar la extensión REST Client
-- Ejecutar cada request paso a paso
+- Open rest_api/test_api.http in VS Code
+- Use the REST Client extension
+- Execute each request step by step
 
-## Resultados
+## Results
 
-Los resultados se guardarán en la carpeta `results/` con:
-- `*_content.txt`: Contenido completo extraído
-- `*_report.txt`: Reporte de análisis con formato detectado
+Results will be saved in the `results/` folder with:
+- `*_content.txt`: Complete extracted content
+- `*_report.txt`: Analysis report with detected format
