@@ -1,0 +1,29 @@
+### Variables
+@endpoint = {{$dotenv DOCUMENT_INTELLIGENCE_ENDPOINT}}
+@key = {{$dotenv DOCUMENT_INTELLIGENCE_KEY}}
+@apiVersion = 2023-07-31
+
+### 1. Analizar documento (POST)
+# @name analyzeDocument
+POST {{endpoint}}/documentintelligence/documentModels/prebuilt-layout:analyze?api-version={{apiVersion}}
+Content-Type: application/pdf
+Ocp-Apim-Subscription-Key: {{key}}
+
+< ./test_documents/sample.pdf
+
+### 2. Obtener resultado (GET)
+# Usar el Operation-Location de la respuesta anterior
+GET {{analyzeDocument.response.headers.Operation-Location}}
+Ocp-Apim-Subscription-Key: {{key}}
+
+### 3. Prueba con documento complejo
+# @name analyzeComplexDocument
+POST {{endpoint}}/documentintelligence/documentModels/prebuilt-layout:analyze?api-version={{apiVersion}}
+Content-Type: application/pdf
+Ocp-Apim-Subscription-Key: {{key}}
+
+< ./test_documents/complex_document.pdf
+
+### 4. Obtener resultado del documento complejo
+GET {{analyzeComplexDocument.response.headers.Operation-Location}}
+Ocp-Apim-Subscription-Key: {{key}}

@@ -1,0 +1,27 @@
+# Archivos de configuración sensibles
+.env
+*.key
+
+# Resultados de pruebas
+results/
+*.txt
+*.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+
+# C#
+bin/
+obj/
+*.dll
+*.exe
+
+# VS Code
+.vscode/settings.json
