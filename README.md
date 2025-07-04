@@ -38,5 +38,5 @@ dotnet run --project csharp/
 ## Results
 
 Results will be saved in the `results/` folder with:
-- `*_content.txt`: Complete extracted content
-- `*_report.txt`: Analysis report with detected format
+- `*_content.md`: Complete extracted content
+- `*_report.md`: Analysis report with detected format
